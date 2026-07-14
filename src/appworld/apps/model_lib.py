@@ -2198,7 +2198,12 @@ def get_db_engine(db_app_path: str) -> SQLEngine:
         )
     else:
         os.makedirs(os.path.dirname(db_app_path), exist_ok=True)
-        engine = create_engine(f"sqlite:///{db_app_path}")
+        # Moltclawdbot fork: multi-threaded service/test processes share cached
+        # connections across threads; sqlite must permit it (same as memory path).
+        engine = create_engine(
+            f"sqlite:///{db_app_path}",
+            connect_args={"check_same_thread": False},
+        )
     return engine
 
 
@@ -2208,7 +2213,8 @@ def get_direct_cached_sqlite3_connection(db_app_path: str) -> SQLite3Connection:
 
 
 def get_direct_sqlite3_connection(db_app_path: str) -> SQLite3Connection:
-    connection = sqlite3.connect(db_app_path)
+    # Moltclawdbot fork: see get_db_engine note on cross-thread cached connections.
+    connection = sqlite3.connect(db_app_path, check_same_thread=False)
     connection.execute("PRAGMA mmap_size = 268435456")  # 256MB
     return connection
 
