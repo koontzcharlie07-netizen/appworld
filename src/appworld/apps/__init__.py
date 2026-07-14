@@ -37,6 +37,23 @@ APP_TO_DESCRIPTION = {
     "todoist": "A task management app to manage todo lists and collaborate on them with others.",
 }
 
+# Moltclawdbot fork: apps can be disabled environment-wide without deleting their
+# code, e.g. APPWORLD_DISABLED_APPS="venmo,splitwise,todoist". Unset = stock AppWorld.
+_disabled_apps = {
+    name.strip()
+    for name in os.environ.get("APPWORLD_DISABLED_APPS", "").split(",")
+    if name.strip()
+}
+if _disabled_apps - set(APP_TO_DESCRIPTION):
+    raise ValueError(
+        f"APPWORLD_DISABLED_APPS contains unknown apps: {sorted(_disabled_apps - set(APP_TO_DESCRIPTION))}"
+    )
+APP_TO_DESCRIPTION = {
+    name: description
+    for name, description in APP_TO_DESCRIPTION.items()
+    if name not in _disabled_apps
+}
+
 
 @cache
 def get_all_apps(
