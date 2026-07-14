@@ -35,6 +35,9 @@ APP_TO_DESCRIPTION = {
     "splitwise": "A bill splitting app to track and split expenses with people.",
     "simple_note": "A note-taking app to create and manage notes",
     "todoist": "A task management app to manage todo lists and collaborate on them with others.",
+    # Moltclawdbot fork apps (models-only; no engine apis.py — facades operate on models):
+    "sheets": "A spreadsheet app to view and edit tabular data in spreadsheets with multiple sheets.",
+    "strava": "A fitness tracking app to record and review running and riding activities and stats.",
 }
 
 # Moltclawdbot fork: apps can be disabled environment-wide without deleting their
