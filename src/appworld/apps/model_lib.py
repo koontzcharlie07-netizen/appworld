@@ -2207,9 +2207,22 @@ def get_db_engine(db_app_path: str) -> SQLEngine:
     return engine
 
 
-@lru_cache(maxsize=1000)
+_direct_connection_cache: dict[str, SQLite3Connection] = {}
+
+
 def get_direct_cached_sqlite3_connection(db_app_path: str) -> SQLite3Connection:
-    return get_direct_sqlite3_connection(db_app_path)
+    # Moltclawdbot fork: dict cache with a health check instead of lru_cache —
+    # a cached connection closed by one collection must not poison later ones.
+    connection = _direct_connection_cache.get(db_app_path)
+    if connection is not None:
+        try:
+            connection.execute("SELECT 1")
+        except (sqlite3.ProgrammingError, sqlite3.OperationalError):
+            connection = None
+    if connection is None:
+        connection = get_direct_sqlite3_connection(db_app_path)
+        _direct_connection_cache[db_app_path] = connection
+    return connection
 
 
 def get_direct_sqlite3_connection(db_app_path: str) -> SQLite3Connection:
